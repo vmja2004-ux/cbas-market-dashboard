@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="cb-daily-latest-date" content="2026-07-23" />
+    <title>可轉債每日情蒐</title>
+    <link rel="stylesheet" href="./daily-news.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <div>
+        <p class="eyebrow">CB Daily Intelligence</p>
+        <h1>可轉債每日情蒐</h1>
+        <p id="subtitle" class="subtitle">讀取歷史新聞資料中……</p>
+      </div>
+      <nav class="nav-links" aria-label="站內連結">
+        <a href="./index.html">CBAS 儀表板</a>
+        <a href="./filing-calendar.html">申報行事曆</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="metrics" id="metrics" aria-label="統計摘要"></section>
+
+      <section class="panel filters" aria-label="篩選條件">
+        <label>
+          <span>日期</span>
+          <select id="dateFilter"></select>
+        </label>
+        <label>
+          <span>關鍵字</span>
+          <input id="keywordInput" type="search" placeholder="輸入 6472、公司名、新聞標題或來源" />
+        </label>
+        <label>
+          <span>來源</span>
+          <select id="sourceFilter"></select>
+        </label>
+        <label>
+          <span>排序</span>
+          <select id="sortSelect">
+            <option value="newest">最新優先</option>
+            <option value="score">關聯分數</option>
+            <option value="code">標的代碼</option>
+          </select>
+        </label>
+      </section>
+
+      <section class="panel">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Results</p>
+            <h2>新聞清單</h2>
+          </div>
+          <span id="resultCount"></span>
+        </div>
+        <div id="emptyState" class="empty" hidden>沒有符合條件的新聞。可改選全部日期，或輸入標的代碼查詢過往新聞。</div>
+        <div id="newsList" class="news-list"></div>
+      </section>
+
+      <section class="panel">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Daily Archive</p>
+            <h2>每日命中紀錄</h2>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>日期</th>
+                <th>命中新聞</th>
+                <th>追蹤標的</th>
+                <th>警示</th>
+                <th>主旨</th>
+              </tr>
+            </thead>
+            <tbody id="archiveRows"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script src="./data/daily-history.js"></script>
+    <script src="./daily-news-app.js"></script>
+  </body>
+</html>

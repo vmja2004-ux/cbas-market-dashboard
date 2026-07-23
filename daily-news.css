@@ -1,0 +1,295 @@
+:root {
+  color-scheme: light;
+  --bg: #f5f7fb;
+  --panel: #ffffff;
+  --ink: #172033;
+  --muted: #667085;
+  --line: #d9e2ef;
+  --brand: #1d4ed8;
+  --brand-soft: #e8f0ff;
+  --warn: #9a3412;
+  font-family: "Microsoft JhengHei", "Noto Sans TC", Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+a {
+  color: var(--brand);
+}
+
+.hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 36px clamp(20px, 5vw, 64px);
+  background: linear-gradient(135deg, #0f172a, #1d4ed8);
+  color: white;
+}
+
+.hero h1 {
+  margin: 6px 0 8px;
+  font-size: clamp(32px, 5vw, 52px);
+}
+
+.eyebrow {
+  margin: 0;
+  color: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.subtitle {
+  margin: 0;
+  max-width: 760px;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.nav-links {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.nav-links a {
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  color: white;
+  padding: 8px 12px;
+  text-decoration: none;
+}
+
+main {
+  padding: 24px clamp(16px, 4vw, 56px) 56px;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(150px, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.metric,
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+}
+
+.metric {
+  padding: 18px;
+}
+
+.metric span {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.metric strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 28px;
+}
+
+.panel {
+  margin-top: 18px;
+  padding: 20px;
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: 180px minmax(240px, 1fr) 180px 160px;
+  gap: 14px;
+}
+
+label span {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+input,
+select {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--ink);
+  font: inherit;
+  padding: 10px 12px;
+}
+
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 18px;
+  margin-bottom: 14px;
+}
+
+.section-heading h2 {
+  margin: 4px 0 0;
+}
+
+#resultCount {
+  color: var(--muted);
+}
+
+.news-list {
+  display: grid;
+  gap: 12px;
+}
+
+.news-card {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 16px;
+  background: #fff;
+}
+
+.news-card h3 {
+  margin: 8px 0;
+  font-size: 18px;
+}
+
+.news-card h3 a {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.news-card h3 a:hover {
+  color: var(--brand);
+  text-decoration: underline;
+}
+
+.meta,
+.reason {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: var(--brand-soft);
+  color: var(--brand);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 9px;
+}
+
+.tag.warn {
+  background: #ffedd5;
+  color: var(--warn);
+}
+
+.summary {
+  margin: 10px 0;
+  color: #344054;
+  line-height: 1.7;
+}
+
+.card-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.notion-capture {
+  border: 0;
+  border-radius: 10px;
+  background: #111827;
+  color: white;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  padding: 9px 13px;
+}
+
+.notion-capture:hover:not(:disabled) {
+  background: var(--brand);
+}
+
+.notion-capture:disabled {
+  cursor: default;
+  opacity: 0.72;
+}
+
+.capture-status {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.capture-status.error {
+  color: #b42318;
+}
+
+.empty {
+  border: 1px dashed var(--line);
+  border-radius: 14px;
+  color: var(--muted);
+  padding: 22px;
+  text-align: center;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 760px;
+}
+
+th,
+td {
+  border-bottom: 1px solid var(--line);
+  padding: 10px;
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+@media (max-width: 900px) {
+  .hero,
+  .section-heading {
+    display: block;
+  }
+
+  .nav-links {
+    margin-top: 18px;
+  }
+
+  .metrics,
+  .filters {
+    grid-template-columns: 1fr;
+  }
+}

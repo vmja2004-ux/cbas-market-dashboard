@@ -1,0 +1,16 @@
+{
+  "name": "cbas-market-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "test": "node --check api/monthly-revenue-image.js && node --check api/notion-capture.js && node --check daily-news-app.js"
+  },
+  "dependencies": {
+    "@sparticuz/chromium": "^131.0.1",
+    "puppeteer-core": "^23.11.1"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

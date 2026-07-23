@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>近半年發行案件行事曆</title>
+    <link rel="stylesheet" href="./filing-calendar.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">SFB Filing Calendar</p>
+        <h1>近半年發行案件行事曆</h1>
+        <p id="subtitle" class="subtitle">載入中</p>
+      </div>
+      <div class="actions" aria-label="資料操作">
+        <button id="downloadCsv" type="button" title="下載目前篩選結果">CSV</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="metrics" id="metrics" aria-label="統計摘要"></section>
+
+      <section class="toolbar" aria-label="篩選條件">
+        <label>
+          <span>搜尋</span>
+          <input id="searchInput" type="search" placeholder="代號、公司、承銷商" />
+        </label>
+        <label>
+          <span>案件</span>
+          <select id="typeSelect">
+            <option value="">全部</option>
+            <option value="convertible_bond">轉換公司債</option>
+            <option value="cash_capital_increase">現金增資</option>
+          </select>
+        </label>
+        <label>
+          <span>日期欄位</span>
+          <select id="dateFieldSelect">
+            <option value="effective_date">生效日期</option>
+            <option value="received_date">收文日期</option>
+          </select>
+        </label>
+        <label>
+          <span>月份</span>
+          <select id="monthSelect"></select>
+        </label>
+      </section>
+
+      <section class="calendar-shell" aria-label="行事曆">
+        <div class="calendar-head">
+          <button id="prevMonth" type="button" title="上一個月">‹</button>
+          <h2 id="monthTitle"></h2>
+          <button id="nextMonth" type="button" title="下一個月">›</button>
+        </div>
+        <div class="weekday-row" aria-hidden="true">
+          <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+        </div>
+        <div id="calendarGrid" class="calendar-grid"></div>
+      </section>
+
+      <section class="table-section">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">List</p>
+            <h2>案件清單</h2>
+          </div>
+          <span id="rowCount"></span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th id="primaryDateHeader">生效日期</th>
+                <th>案件</th>
+                <th>代號</th>
+                <th>公司</th>
+                <th>市場</th>
+                <th>生效日期</th>
+                <th>收文日期</th>
+                <th>金額</th>
+                <th>發行價格</th>
+                <th>承銷商</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script src="./data/sfb-filing-calendar.js"></script>
+    <script src="./filing-calendar-app.js"></script>
+  </body>
+</html>

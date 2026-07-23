@@ -16,13 +16,18 @@ async function getExecutablePath() {
 }
 
 async function captureMonthlyRevenue(stockId) {
+  const launchArgs = [
+    ...chromium.args,
+    "--disable-features=site-per-process",
+    "--disable-blink-features=AutomationControlled",
+    "--lang=zh-TW,zh",
+  ];
+  if (process.env.GOODINFO_PROXY_SERVER) {
+    launchArgs.push(`--proxy-server=${process.env.GOODINFO_PROXY_SERVER}`);
+  }
+
   const browser = await puppeteer.launch({
-    args: [
-      ...chromium.args,
-      "--disable-features=site-per-process",
-      "--disable-blink-features=AutomationControlled",
-      "--lang=zh-TW,zh",
-    ],
+    args: launchArgs,
     defaultViewport: {
       width: 430,
       height: 1800,
@@ -35,6 +40,12 @@ async function captureMonthlyRevenue(stockId) {
 
   try {
     const page = await browser.newPage();
+    if (process.env.GOODINFO_PROXY_USERNAME || process.env.GOODINFO_PROXY_PASSWORD) {
+      await page.authenticate({
+        username: process.env.GOODINFO_PROXY_USERNAME || "",
+        password: process.env.GOODINFO_PROXY_PASSWORD || "",
+      });
+    }
     await page.evaluateOnNewDocument(() => {
       Object.defineProperty(navigator, "webdriver", { get: () => undefined });
       Object.defineProperty(navigator, "languages", { get: () => ["zh-TW", "zh", "en-US", "en"] });

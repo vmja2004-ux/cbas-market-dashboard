@@ -219,6 +219,15 @@ async function appendBlocks(pageId, blocks) {
   });
 }
 
+async function verifyImageUrl(imageUrl) {
+  const response = await fetch(imageUrl, { headers: { "User-Agent": "Mozilla/5.0" } });
+  const contentType = response.headers.get("content-type") || "";
+  if (!response.ok || !contentType.includes("image/png")) {
+    const body = await response.text().catch(() => "");
+    throw new Error(`月營收截圖端點失敗：HTTP ${response.status} ${body.slice(0, 300)}`);
+  }
+}
+
 module.exports = async function handler(req, res) {
   if (req.method !== "POST") {
     json(res, 405, { ok: false, message: "只接受 POST。" });
@@ -270,6 +279,7 @@ module.exports = async function handler(req, res) {
     const imageUrl = `${getOrigin(req)}/api/monthly-revenue-image?stockId=${encodeURIComponent(stockId)}&v=${encodeURIComponent(
       new Date().toISOString().slice(0, 10)
     )}`;
+    await verifyImageUrl(imageUrl);
     await appendBlocks(page.id, buildBlocks(item, stockId, stockName, recordKey, imageUrl));
 
     if (hasNews && !hasScreenshot) status = "backfilled_screenshot";

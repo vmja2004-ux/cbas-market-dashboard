@@ -51,9 +51,13 @@ async function captureGoodinfoMonthlyRevenue(stockId) {
     const url = `${GOODINFO_BASE_URL}?STOCK_ID=${encodeURIComponent(stockId)}`;
     await page.goto(url, { waitUntil: "domcontentloaded", timeout: 45000 });
     await page.waitForNetworkIdle({ idleTime: 1000, timeout: 15000 }).catch(() => {});
+    const blockedText = await page.evaluate(() => document.body && document.body.innerText.slice(0, 300));
+    if (/正在執行安全驗證|Cloudflare|安全服務抵禦惡意機器人/i.test(blockedText || "")) {
+      throw new Error(`Goodinfo 安全驗證阻擋：${blockedText}`);
+    }
     await page
       .waitForFunction(() => document.body && document.body.innerText.includes("月營收狀況"), {
-        timeout: 20000,
+        timeout: 12000,
       })
       .catch(() => {});
 

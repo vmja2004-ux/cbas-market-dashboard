@@ -150,7 +150,7 @@ function buildBlocks(item, stockId, stockName, recordKey, imageUrl) {
       image: {
         type: "external",
         external: { url: imageUrl },
-        caption: [textRich(`Goodinfo 月營收狀況截圖，擷取時間：${capturedAt}`)],
+        caption: [textRich(`月營收狀況截圖，優先擷取 Goodinfo；若遭安全驗證阻擋則使用 Yahoo 股市營收表備援。擷取時間：${capturedAt}`)],
       },
     },
     {

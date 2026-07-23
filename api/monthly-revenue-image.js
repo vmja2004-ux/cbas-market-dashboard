@@ -20,6 +20,7 @@ async function captureMonthlyRevenue(stockId) {
     args: [
       ...chromium.args,
       "--disable-features=site-per-process",
+      "--disable-blink-features=AutomationControlled",
       "--lang=zh-TW,zh",
     ],
     defaultViewport: {
@@ -34,8 +35,13 @@ async function captureMonthlyRevenue(stockId) {
 
   try {
     const page = await browser.newPage();
+    await page.evaluateOnNewDocument(() => {
+      Object.defineProperty(navigator, "webdriver", { get: () => undefined });
+      Object.defineProperty(navigator, "languages", { get: () => ["zh-TW", "zh", "en-US", "en"] });
+      Object.defineProperty(navigator, "plugins", { get: () => [1, 2, 3, 4, 5] });
+    });
     await page.setUserAgent(
-      "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1"
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
     );
     await page.setExtraHTTPHeaders({
       "Accept-Language": "zh-TW,zh;q=0.9,en;q=0.8",
@@ -44,7 +50,11 @@ async function captureMonthlyRevenue(stockId) {
     const url = `${GOODINFO_BASE_URL}?STOCK_ID=${encodeURIComponent(stockId)}`;
     await page.goto(url, { waitUntil: "domcontentloaded", timeout: 45000 });
     await page.waitForNetworkIdle({ idleTime: 1000, timeout: 15000 }).catch(() => {});
-    await new Promise((resolve) => setTimeout(resolve, 2500));
+    await page
+      .waitForFunction(() => document.body && document.body.innerText.includes("月營收狀況"), {
+        timeout: 20000,
+      })
+      .catch(() => {});
 
     const clip = await page.evaluate(() => {
       const hasText = (node, text) => (node.textContent || "").replace(/\s+/g, "").includes(text);

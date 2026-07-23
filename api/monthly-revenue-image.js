@@ -1,3 +1,5 @@
+process.env.AWS_LAMBDA_JS_RUNTIME ??= "nodejs22.x";
+
 const chromium = require("@sparticuz/chromium");
 const puppeteer = require("puppeteer-core");
 

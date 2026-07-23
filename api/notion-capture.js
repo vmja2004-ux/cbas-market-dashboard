@@ -225,7 +225,7 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  const captureKey = getEnv("CAPTURE_KEY", "NOTION_CAPTURE_KEY");
+  const captureKey = getEnv("CAPTURE_KEY", "CAPTURE_ACCESS_KEY", "NOTION_CAPTURE_KEY");
   if (captureKey && req.headers["x-capture-key"] !== captureKey) {
     json(res, 401, { ok: false, message: "Notion 擷取存取碼錯誤。" });
     return;

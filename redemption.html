@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CB 到期贖回</title>
+    <link rel="stylesheet" href="./schedule.css" />
+  </head>
+  <body data-page="redemption">
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">CB Redemption Calendar</p>
+        <h1>CB 到期贖回</h1>
+        <p id="subtitle" class="subtitle">讀取資料中。</p>
+      </div>
+      <nav class="header-actions" aria-label="主要功能">
+        <a href="./index.html">報價</a>
+        <a href="./primary.html">初級市場</a>
+        <a class="active" href="./redemption.html">到期贖回</a>
+        <button id="downloadCsv" type="button">CSV</button>
+      </nav>
+    </header>
+    <main>
+      <section class="metrics" id="metrics"></section>
+      <section class="toolbar" aria-label="篩選條件">
+        <label><span>搜尋</span><input id="searchInput" type="search" placeholder="股票代碼、CB 代碼、名稱、狀態" /></label>
+        <label><span>日期基準</span><select id="dateFieldSelect"></select></label>
+        <label><span>事件類型</span><select id="typeSelect"></select></label>
+        <label><span>月份</span><select id="monthSelect"></select></label>
+      </section>
+      <section class="calendar-shell" aria-label="到期贖回行事曆">
+        <div class="calendar-head"><button id="prevMonth" type="button" title="上一個月">‹</button><h2 id="monthTitle"></h2><button id="nextMonth" type="button" title="下一個月">›</button></div>
+        <div class="weekday-row"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
+        <div id="calendarGrid" class="calendar-grid"></div>
+      </section>
+      <section class="table-section">
+        <div class="section-heading"><div><p class="eyebrow">List</p><h2 id="tableTitle">到期贖回清單</h2></div><span id="rowCount"></span></div>
+        <div class="table-wrap"><table><thead id="tableHead"></thead><tbody id="tableBody"></tbody></table></div>
+      </section>
+    </main>
+    <script src="./data/cbas-latest.js"></script>
+    <script src="./schedule-app.js"></script>
+  </body>
+</html>

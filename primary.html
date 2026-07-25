@@ -3,42 +3,70 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>CB 初級市場</title>
-    <link rel="stylesheet" href="./schedule.css" />
+    <meta name="color-scheme" content="light" />
+    <title>CB 初級市場｜CB Market Desk V2</title>
+    <link rel="stylesheet" href="./styles.css" />
   </head>
   <body data-page="primary">
-    <header class="app-header">
-      <div>
-        <p class="eyebrow">CB Primary Market</p>
-        <h1>CB 初級市場</h1>
-        <p id="subtitle" class="subtitle">讀取資料中。</p>
-      </div>
-      <nav class="header-actions" aria-label="主要功能">
+    <header class="site-header">
+      <a class="brand" href="./index.html">
+        <span class="brand-mark">CB</span>
+        <span><strong>Market Desk</strong><small>可轉債事件與交易工作台</small></span>
+      </a>
+      <nav aria-label="主要功能">
         <a href="./index.html">報價</a>
         <a class="active" href="./primary.html">初級市場</a>
         <a href="./redemption.html">到期贖回</a>
-        <button id="downloadCsv" type="button">CSV</button>
       </nav>
+      <div id="freshness" class="freshness"></div>
     </header>
+
     <main>
-      <section class="metrics" id="metrics"></section>
-      <section class="toolbar" aria-label="篩選條件">
-        <label><span>搜尋</span><input id="searchInput" type="search" placeholder="CB 代碼、名稱、券商、TCRI" /></label>
-        <label><span>日期基準</span><select id="dateFieldSelect"></select></label>
-        <label><span>案件類型</span><select id="typeSelect"></select></label>
-        <label><span>月份</span><select id="monthSelect"></select></label>
+      <section class="hero">
+        <div>
+          <p class="eyebrow">PRIMARY MARKET</p>
+          <h1>初級市場</h1>
+          <p>用行事曆掌握詢圈、競拍、掛牌與 OP 生效節點，再以表格比較發行條件。</p>
+        </div>
+        <button class="outline-button" id="downloadCsv" type="button">匯出目前結果</button>
       </section>
-      <section class="calendar-shell" aria-label="初級市場行事曆">
-        <div class="calendar-head"><button id="prevMonth" type="button" title="上一個月">‹</button><h2 id="monthTitle"></h2><button id="nextMonth" type="button" title="下一個月">›</button></div>
+
+      <section id="metrics" class="metrics" aria-label="資料摘要"></section>
+
+      <section class="workspace">
+        <div class="workspace-head">
+          <div><p class="eyebrow">FILTERS</p><h2>案件篩選</h2></div>
+          <button id="resetFilters" class="text-button" type="button">清除條件</button>
+        </div>
+        <div class="filter-grid">
+          <label class="wide"><span>搜尋案件</span><input id="searchInput" type="search" placeholder="CB 代碼、名稱、主辦券商或 TCRI" /></label>
+          <label><span>日期基準</span><select id="dateFieldSelect"></select></label>
+          <label><span>發行方式</span><select id="typeSelect"></select></label>
+          <label><span>顯示月份</span><select id="monthSelect"></select></label>
+        </div>
+      </section>
+
+      <section class="calendar-card">
+        <div class="calendar-head">
+          <button id="prevMonth" type="button" aria-label="上一個月">‹</button>
+          <div><p class="eyebrow">CALENDAR</p><h2 id="monthTitle"></h2></div>
+          <button id="nextMonth" type="button" aria-label="下一個月">›</button>
+        </div>
         <div class="weekday-row"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
         <div id="calendarGrid" class="calendar-grid"></div>
       </section>
-      <section class="table-section">
-        <div class="section-heading"><div><p class="eyebrow">List</p><h2 id="tableTitle">初級市場清單</h2></div><span id="rowCount"></span></div>
+
+      <section class="table-card">
+        <div class="section-head">
+          <div><p class="eyebrow">ISSUE LIST</p><h2>初級市場案件</h2></div>
+          <span id="rowCount" class="count-pill"></span>
+        </div>
         <div class="table-wrap"><table><thead id="tableHead"></thead><tbody id="tableBody"></tbody></table></div>
       </section>
     </main>
+
+    <footer>CB Market Desk V2 · 未定日期不會列入行事曆，但仍保留於案件表格。</footer>
     <script src="./data/cbas-latest.js"></script>
-    <script src="./schedule-app.js"></script>
+    <script src="./app.js"></script>
   </body>
 </html>

@@ -3,69 +3,96 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>CBAS 報價查詢</title>
+    <meta name="color-scheme" content="light" />
+    <title>CBAS 報價｜CB Market Desk V2</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
-  <body>
-    <header class="app-header">
-      <div>
-        <p class="eyebrow">CBAS Monitor</p>
-        <h1>CBAS 報價查詢</h1>
-        <p id="subtitle" class="subtitle">讀取資料中。</p>
-      </div>
-      <nav class="header-actions" aria-label="主要功能">
+  <body data-page="quotes">
+    <header class="site-header">
+      <a class="brand" href="./index.html">
+        <span class="brand-mark">CB</span>
+        <span><strong>Market Desk</strong><small>可轉債事件與交易工作台</small></span>
+      </a>
+      <nav aria-label="主要功能">
         <a class="active" href="./index.html">報價</a>
         <a href="./primary.html">初級市場</a>
         <a href="./redemption.html">到期贖回</a>
-        <button id="downloadJson" type="button" title="下載 JSON">JSON</button>
-        <button id="downloadCsv" type="button" title="下載目前報價">CSV</button>
       </nav>
+      <div id="freshness" class="freshness"></div>
     </header>
 
     <main>
-      <section class="metrics" id="metrics"></section>
-
-      <section class="toolbar" aria-label="報價查詢工具">
-        <label>
-          <span>搜尋</span>
-          <input id="searchInput" type="search" placeholder="CB 代碼、名稱、日期" />
-        </label>
-        <label>
-          <span>來源檔</span>
-          <select id="sourceSelect"><option value="">全部來源</option></select>
-        </label>
-        <label>
-          <span>排序</span>
-          <select id="sortSelect">
-            <option value="code">CB 代碼</option>
-            <option value="premium">權利金</option>
-            <option value="date">選擇權到期日</option>
-            <option value="parity">轉換價值</option>
-          </select>
-        </label>
+      <section class="hero">
+        <div>
+          <p class="eyebrow">CBAS QUOTE BOARD</p>
+          <h1>報價查詢</h1>
+          <p>逐筆保留元大、富邦與群益報價，快速比較權利金、轉換價值與選擇權期限。</p>
+        </div>
+        <button class="outline-button" id="downloadCsv" type="button">匯出目前結果</button>
       </section>
 
-      <section class="quote-layout">
-        <article class="watchlist">
-          <div class="section-heading">
-            <div><p class="eyebrow">Focus</p><h2>優先觀察標的</h2></div>
-            <span id="watchlistCount"></span>
+      <section id="metrics" class="metrics" aria-label="資料摘要"></section>
+
+      <section class="workspace">
+        <div class="workspace-head">
+          <div>
+            <p class="eyebrow">FILTERS</p>
+            <h2>查詢條件</h2>
           </div>
-          <div id="watchlistRows" class="watchlist-rows"></div>
-        </article>
+          <button id="resetFilters" class="text-button" type="button">清除條件</button>
+        </div>
+        <div class="filter-grid">
+          <label class="wide">
+            <span>搜尋 CB</span>
+            <input id="searchInput" type="search" placeholder="輸入 CB 代碼、名稱或股票代碼" />
+          </label>
+          <label>
+            <span>券商來源</span>
+            <select id="brokerSelect"></select>
+          </label>
+          <label>
+            <span>排序方式</span>
+            <select id="sortSelect">
+              <option value="code">CB 代碼</option>
+              <option value="parity-desc">轉換價值：高至低</option>
+              <option value="premium-asc">百元權利金：低至高</option>
+              <option value="ratio-asc">折溢價：低至高</option>
+              <option value="expiry-asc">選擇權到期：近至遠</option>
+            </select>
+          </label>
+          <label>
+            <span>最低轉換價值</span>
+            <input id="minParity" type="number" inputmode="decimal" placeholder="例如 85" step="1" />
+          </label>
+          <label>
+            <span>最低餘額比例</span>
+            <input id="minBalance" type="number" inputmode="decimal" placeholder="資料源尚未提供" step="1" disabled />
+          </label>
+        </div>
+        <div class="quick-filters" aria-label="快速篩選">
+          <button type="button" data-filter="all" class="active">全部報價</button>
+          <button type="button" data-filter="strategy">轉換價值 &gt; 85＋餘額 &gt; 30%</button>
+          <button type="button" data-filter="low-premium">折溢價低於 20%</button>
+          <button type="button" data-filter="valid">可拆解報價</button>
+        </div>
+        <p id="dataNotice" class="data-notice"></p>
       </section>
 
-      <section class="table-section">
-        <div class="section-heading">
-          <div><p class="eyebrow">Quotes</p><h2>券商報價</h2></div>
-          <span id="rowCount"></span>
+      <section class="table-card">
+        <div class="section-head">
+          <div><p class="eyebrow">BROKER QUOTES</p><h2>券商報價</h2></div>
+          <span id="rowCount" class="count-pill"></span>
         </div>
         <div class="table-wrap">
-          <table><thead id="tableHead"></thead><tbody id="tableBody"></tbody></table>
+          <table>
+            <thead id="tableHead"></thead>
+            <tbody id="tableBody"></tbody>
+          </table>
         </div>
       </section>
     </main>
 
+    <footer>CB Market Desk V2 · 報價僅供研究與比價，請以券商最新正式報價為準。</footer>
     <script src="./data/cbas-latest.js"></script>
     <script src="./app.js"></script>
   </body>

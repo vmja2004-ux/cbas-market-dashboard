@@ -322,6 +322,46 @@ main {
 .data-tabs button:hover { color: var(--green); background: var(--green-soft); }
 .data-tabs button.active { color: #fff; background: var(--green); }
 .data-tabs button span { margin-left: 4px; font-size: 12px; }
+
+.issued-view[hidden],
+#issuedTableCard[hidden] { display: none; }
+.issued-row-button {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  display: grid;
+  gap: 3px;
+  padding: 0;
+  text-align: left;
+}
+.issued-row-button strong { color: var(--green); font-size: 18px; }
+.issued-row-button small { color: var(--muted); font-size: 13px; }
+.issued-timeline {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+.issued-timeline article {
+  border-top: 3px solid var(--green);
+  display: grid;
+  gap: 8px;
+  padding: 16px 4px 8px;
+}
+.issued-timeline article span { color: var(--muted); }
+.issued-timeline article strong { font-size: 20px; }
+.issued-terms {
+  background: var(--green-soft);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 24px;
+  grid-column: 1 / -1;
+  margin-top: 10px;
+  padding: 18px;
+}
+.issued-terms strong { flex-basis: 100%; }
 .primary-view[hidden] { display: none !important; }
 .calendar-event.board { border-color: var(--blue); background: #e2edf4; }
 
@@ -570,4 +610,5 @@ footer {
   }
   .quote-table .code-cell::before { display: none; }
   .quote-comparison { grid-template-columns: 1fr; }
+  .issued-timeline { grid-template-columns: 1fr 1fr; }
 }

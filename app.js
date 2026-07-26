@@ -58,7 +58,9 @@ function sourceName(sourceId) {
 }
 
 function brokerName(sourceId) {
-  const name = sourceName(sourceId);
+  const source = data.source_files?.[sourceId] || {};
+  if (["元大", "富邦", "群益"].includes(source.broker)) return source.broker;
+  const name = source.name || "";
   if (name.includes("元大")) return "元大";
   if (name.includes("富邦")) return "富邦";
   if (name.includes("群益")) return "群益";
@@ -99,11 +101,23 @@ function emptyRow(columnCount, message = "目前沒有符合條件的資料") {
 }
 
 function initQuotes() {
-  let rows = unpack(data.quotes)
+  const defaultPayload = {
+    latest_source_date: data.latest_source_date,
+    source_files: data.source_files,
+    quotes: data.quotes,
+  };
+  const savedPayload = window.CBQuoteUpload?.loadSaved();
+  if (savedPayload) {
+    data.latest_source_date = savedPayload.latest_source_date;
+    data.source_files = savedPayload.source_files;
+    data.quotes = savedPayload.quotes;
+  }
+  const buildRows = () => unpack(data.quotes)
     .map((row, index) => ({ ...row, broker: brokerName(row.source_id), row_id: `${row.source_id}-${index}` }))
     .filter((row) => ["元大", "富邦", "群益"].includes(row.broker));
+  let rows = buildRows();
   let balanceAvailable = rows.some((row) => Number.isFinite(row.balance_ratio));
-  let balanceSourceDate = "";
+  let usingUploadedData = Boolean(savedPayload);
   const columns = [
     ["broker", "券商"], ["cb", "CB 標的"], ["premium_per_100", "百元權利金"],
     ["premium_reference", "參考權利金"], ["cb_price", "CB 價"],
@@ -121,8 +135,8 @@ function initQuotes() {
 
   function renderDataNotice(message = "") {
     $("dataNotice").textContent = message || (balanceAvailable
-      ? `餘額比例已由統一證券已發行 CB 資料併入${balanceSourceDate ? `（${balanceSourceDate}）` : ""}；策略條件採嚴格大於 85 與 30%。`
-      : "正在讀取統一證券已發行 CB 資料的餘額比例；尚未取得前，完整策略條件暫不啟用。");
+      ? `餘額比例取自元大報價單「流通餘額占發行總額%」${usingUploadedData ? "，並已按 CB 代碼套用至三家報價" : ""}；策略條件採嚴格大於 85 與 30%。`
+      : "目前資料沒有元大「流通餘額占發行總額%」可對應值；上傳三家最新報價後即可使用餘額篩選。");
   }
   renderDataNotice();
 
@@ -204,34 +218,30 @@ function initQuotes() {
     const exportRows = filtered().map((row) => ({ ...row, cb: `${row.cb_code || ""} ${row.cb_name || ""}` }));
     csvDownload(`cbas-quotes-${data.latest_source_date || "latest"}.csv`, columns, exportRows);
   });
-  render();
 
-  fetch("/api/issued-balance", { headers: { Accept: "application/json" } })
-    .then(async (response) => {
-      const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error || `餘額資料回應 ${response.status}`);
-      const balances = new Map((payload.rows || []).map((row) => [String(row.cb_code), row]));
-      rows = rows.map((row) => {
-        const issued = balances.get(String(row.cb_code));
-        return issued ? {
-          ...row,
-          balance_ratio: issued.balance_ratio,
-          outstanding_lots: issued.outstanding_lots,
-          issue_amount_100m: issued.issue_amount_100m,
-        } : row;
-      });
-      balanceAvailable = rows.some((row) => Number.isFinite(row.balance_ratio));
-      balanceSourceDate = payload.source_updated_at || "";
-      $("minBalance").disabled = !balanceAvailable;
-      $("minBalance").placeholder = balanceAvailable ? "例如 30" : "沒有可用資料";
-      renderDataNotice(balanceAvailable ? "" : "已讀取來源網站，但目前報價標的沒有可對應的餘額比例。");
-      render();
-    })
-    .catch((error) => {
-      $("minBalance").disabled = true;
-      renderDataNotice(`餘額比例暫時無法更新：${error.message}。報價資料仍可正常查詢。`);
-      render();
-    });
+  function applyPayload(payload, uploaded) {
+    data.latest_source_date = payload.latest_source_date;
+    data.source_files = payload.source_files;
+    data.quotes = payload.quotes;
+    rows = buildRows();
+    usingUploadedData = uploaded;
+    balanceAvailable = rows.some((row) => Number.isFinite(row.balance_ratio));
+    $("minBalance").disabled = !balanceAvailable;
+    $("minBalance").placeholder = balanceAvailable ? "例如 30" : "沒有可用資料";
+    renderFreshness();
+    renderDataNotice();
+    render();
+  }
+
+  window.CBQuoteUpload?.mount({
+    onApply: (payload) => applyPayload(payload, true),
+    onClear: () => applyPayload(defaultPayload, false),
+  });
+  applyPayload({
+    latest_source_date: data.latest_source_date,
+    source_files: data.source_files,
+    quotes: data.quotes,
+  }, usingUploadedData);
 }
 
 function eventDateKey(row, dateField) {

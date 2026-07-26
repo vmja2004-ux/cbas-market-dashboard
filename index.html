@@ -34,6 +34,30 @@
 
       <section id="metrics" class="metrics" aria-label="資料摘要"></section>
 
+      <section class="workspace upload-workspace" aria-labelledby="uploadHeading">
+        <div class="workspace-head">
+          <div>
+            <p class="eyebrow">WEEKLY UPDATE</p>
+            <h2 id="uploadHeading">上傳每週報價</h2>
+          </div>
+          <button id="clearQuoteUpload" class="text-button" type="button" hidden>恢復預設資料</button>
+        </div>
+        <div class="upload-layout">
+          <label id="quoteDrop" class="upload-drop">
+            <input id="quoteFiles" type="file" accept=".xlsx,.xls" multiple />
+            <span class="upload-icon" aria-hidden="true">↑</span>
+            <strong>選擇或拖入三個 Excel 檔</strong>
+            <small>元大、富邦、群益各一檔；支援 .xlsx 與 .xls</small>
+          </label>
+          <div class="upload-guide">
+            <strong>合併規則</strong>
+            <p>系統會自動辨識券商與資料日期，以 CB 代碼整併。餘額比例固定取自元大報價單的「流通餘額占發行總額%」，再套用至三家同一檔 CB。</p>
+            <p>完成後資料會保存在此瀏覽器，重新開啟頁面仍可查詢。</p>
+          </div>
+        </div>
+        <p id="uploadStatus" class="upload-status" role="status" aria-live="polite">尚未選擇檔案。</p>
+      </section>
+
       <section class="workspace">
         <div class="workspace-head">
           <div>
@@ -95,6 +119,8 @@
 
     <footer>CB Market Desk V2 · 報價僅供研究與比價，請以券商最新正式報價為準。</footer>
     <script src="./data/cbas-latest.js"></script>
+    <script src="./vendor/xlsx.full.min.js"></script>
+    <script src="./quote-upload.js"></script>
     <script src="./app.js"></script>
   </body>
 </html>

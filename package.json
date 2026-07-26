@@ -7,6 +7,7 @@
     "test": "node --check api/monthly-revenue-image.js && node --check api/notion-capture.js && node --check daily-news-app.js"
   },
   "dependencies": {
+    "@e965/xlsx": "^0.20.3",
     "@sparticuz/chromium": "^131.0.1",
     "puppeteer-core": "^23.11.1"
   },

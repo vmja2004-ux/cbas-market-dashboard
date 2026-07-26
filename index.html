@@ -27,7 +27,7 @@
         <div>
           <p class="eyebrow">CBAS QUOTE BOARD</p>
           <h1>報價查詢</h1>
-          <p>逐筆保留元大、富邦與群益報價，快速比較權利金、轉換價值與選擇權期限。</p>
+          <p>同一檔 CB 合併為一列，並排比較元大、富邦與群益的權利金、轉換價值與到期日。</p>
         </div>
         <button class="outline-button" id="downloadCsv" type="button">匯出目前結果</button>
       </section>
@@ -52,7 +52,8 @@
           <div class="upload-guide">
             <strong>合併規則</strong>
             <p>系統會自動辨識券商與資料日期，以 CB 代碼整併。餘額比例固定取自元大報價單的「流通餘額占發行總額%」，再套用至三家同一檔 CB。</p>
-            <p>完成後資料會保存在此瀏覽器，重新開啟頁面仍可查詢。</p>
+            <p>完成後先保存在此瀏覽器；歷史後端已建立「原始報價、最新合併、上傳紀錄」三個分頁。</p>
+            <a class="sheet-link" href="https://docs.google.com/spreadsheets/d/1GNyCLNmqPBfrPAuS2HKxIAdORF3EUTLQZ7hYEXJ5oD4/edit" target="_blank" rel="noopener">開啟報價歷史 Sheet ↗</a>
           </div>
         </div>
         <p id="uploadStatus" class="upload-status" role="status" aria-live="polite">尚未選擇檔案。</p>
@@ -105,11 +106,11 @@
 
       <section class="table-card">
         <div class="section-head">
-          <div><p class="eyebrow">BROKER QUOTES</p><h2>券商報價</h2></div>
+          <div><p class="eyebrow">MERGED QUOTES</p><h2>合併報價</h2></div>
           <span id="rowCount" class="count-pill"></span>
         </div>
         <div class="table-wrap">
-          <table>
+          <table class="quote-table">
             <thead id="tableHead"></thead>
             <tbody id="tableBody"></tbody>
           </table>
@@ -121,6 +122,8 @@
     <script src="./data/cbas-latest.js"></script>
     <script src="./vendor/cpexcel.js"></script>
     <script src="./vendor/xlsx.core.min.js"></script>
+    <script src="./data/sheet-backend-config.js"></script>
+    <script src="./sheet-backend.js"></script>
     <script src="./quote-upload.js"></script>
     <script src="./app.js"></script>
   </body>

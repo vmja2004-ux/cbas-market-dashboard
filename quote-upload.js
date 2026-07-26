@@ -271,7 +271,13 @@
           return `${broker} ${payload.quotes.filter((row) => row.source_id === sourceId).length} 筆`;
         });
         const balanceCount = new Set(payload.quotes.filter((row) => Number.isFinite(row.balance_ratio)).map((row) => row.cb_code)).size;
-        show(`更新完成：${counts.join("、")}；元大餘額比例對應 ${balanceCount} 檔 CB。`, "success");
+        const sheetResult = await globalThis.CBSheetBackend?.save(payload);
+        const sheetText = sheetResult?.status === "synced"
+          ? `；Sheet 已保存快照 ${sheetResult.snapshot_id || ""}`
+          : sheetResult?.status === "cancelled"
+            ? "；已取消 Sheet 同步"
+            : "；目前先保存在此瀏覽器";
+        show(`更新完成：${counts.join("、")}；元大餘額比例對應 ${balanceCount} 檔 CB${sheetText}。`, "success");
         clearButton.hidden = false;
         onApply(payload);
       } catch (error) {

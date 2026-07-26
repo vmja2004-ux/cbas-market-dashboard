@@ -112,17 +112,53 @@ function initQuotes() {
     data.source_files = savedPayload.source_files;
     data.quotes = savedPayload.quotes;
   }
-  const buildRows = () => unpack(data.quotes)
+  const brokerOrder = ["元大", "富邦", "群益"];
+  const buildRawRows = () => unpack(data.quotes)
     .map((row, index) => ({ ...row, broker: brokerName(row.source_id), row_id: `${row.source_id}-${index}` }))
     .filter((row) => ["元大", "富邦", "群益"].includes(row.broker));
-  let rows = buildRows();
+  const finiteValues = (values) => values.filter(Number.isFinite);
+  const buildMergedRows = (sourceRows) => {
+    const groups = new Map();
+    sourceRows.forEach((row) => groups.set(row.cb_code, [...(groups.get(row.cb_code) || []), row]));
+    return [...groups.entries()].map(([cbCode, quotes]) => {
+      quotes.sort((a, b) => brokerOrder.indexOf(a.broker) - brokerOrder.indexOf(b.broker));
+      const preferred = quotes.find((quote) => quote.broker === "元大") || quotes[0];
+      const premiums = finiteValues(quotes.map((quote) => quote.premium_per_100));
+      const parities = finiteValues(quotes.map((quote) => quote.parity));
+      const ratios = finiteValues(quotes.map((quote) => quote.premium_ratio));
+      const expiries = quotes.map((quote) => quote.option_expiration).filter(isDate).sort();
+      return {
+        cb_code: cbCode,
+        stock_code: preferred.stock_code,
+        cb_name: preferred.cb_name,
+        quotes,
+        brokers: quotes.map((quote) => quote.broker),
+        broker_count: new Set(quotes.map((quote) => quote.broker)).size,
+        balance_ratio: quotes.find((quote) => Number.isFinite(quote.balance_ratio))?.balance_ratio ?? null,
+        min_premium: premiums.length ? Math.min(...premiums) : null,
+        parity_min: parities.length ? Math.min(...parities) : null,
+        parity_max: parities.length ? Math.max(...parities) : null,
+        premium_ratio_min: ratios.length ? Math.min(...ratios) : null,
+        premium_ratio_max: ratios.length ? Math.max(...ratios) : null,
+        nearest_expiry: expiries[0] || null,
+      };
+    });
+  };
+  let rawRows = buildRawRows();
+  let rows = buildMergedRows(rawRows);
   let balanceAvailable = rows.some((row) => Number.isFinite(row.balance_ratio));
   let usingUploadedData = Boolean(savedPayload);
   const columns = [
-    ["broker", "券商"], ["cb", "CB 標的"], ["premium_per_100", "百元權利金"],
-    ["premium_reference", "參考權利金"], ["cb_price", "CB 價"],
-    ["parity", "轉換價值"], ["premium_ratio", "折溢價"],
-    ["balance_ratio", "餘額比例"], ["option_expiration", "選擇權到期"], ["put_date", "賣回日"],
+    ["cb", "CB 標的"], ["balance_ratio", "餘額比例"], ["quotes", "券商報價比較"],
+    ["min_premium", "最低權利金"], ["parity_range", "轉換價值"],
+    ["premium_ratio_range", "折溢價"], ["nearest_expiry", "最近到期"],
+  ];
+  const exportColumns = [
+    ["cb_code", "CB 代碼"], ["cb_name", "CB 名稱"], ["stock_code", "股票代碼"],
+    ["balance_ratio_text", "餘額比例"], ["broker_count", "券商數"],
+    ["yuanta_premium", "元大百元權利金"], ["fubon_premium", "富邦百元權利金"], ["capital_premium", "群益百元權利金"],
+    ["min_premium", "最低百元權利金"], ["parity_min", "轉換價值最低"], ["parity_max", "轉換價值最高"],
+    ["premium_ratio_min_text", "折溢價最低"], ["premium_ratio_max_text", "折溢價最高"], ["nearest_expiry", "最近選擇權到期"],
   ];
   let quickFilter = "all";
 
@@ -147,54 +183,63 @@ function initQuotes() {
     const minBalance = Number.parseFloat($("minBalance").value);
     const result = rows.filter((row) => {
       const matchesSearch = !keyword || [row.cb_code, row.cb_name, row.stock_code].join(" ").toLowerCase().includes(keyword);
-      const matchesBroker = !broker || row.broker === broker;
-      const matchesParity = !Number.isFinite(minParity) || (Number.isFinite(row.parity) && row.parity >= minParity);
+      const matchesBroker = !broker || row.brokers.includes(broker);
+      const matchesParity = !Number.isFinite(minParity) || (Number.isFinite(row.parity_max) && row.parity_max >= minParity);
       const matchesBalance = !Number.isFinite(minBalance) || (Number.isFinite(row.balance_ratio) && row.balance_ratio * 100 >= minBalance);
       if (!matchesSearch || !matchesBroker || !matchesParity || !matchesBalance) return false;
       if (quickFilter === "strategy") {
-        return Number.isFinite(row.parity) && row.parity > 85 &&
+        return Number.isFinite(row.parity_max) && row.parity_max > 85 &&
           Number.isFinite(row.balance_ratio) && row.balance_ratio > 0.3;
       }
-      if (quickFilter === "low-premium") return Number.isFinite(row.premium_ratio) && row.premium_ratio < 0.2;
-      if (quickFilter === "valid") return Number.isFinite(row.premium_per_100);
+      if (quickFilter === "low-premium") return Number.isFinite(row.premium_ratio_min) && row.premium_ratio_min < 0.2;
+      if (quickFilter === "valid") return Number.isFinite(row.min_premium);
       return true;
     });
     const sort = $("sortSelect").value;
     result.sort((a, b) => {
-      if (sort === "parity-desc") return (b.parity ?? -Infinity) - (a.parity ?? -Infinity);
-      if (sort === "premium-asc") return (a.premium_per_100 ?? Infinity) - (b.premium_per_100 ?? Infinity);
-      if (sort === "ratio-asc") return (a.premium_ratio ?? Infinity) - (b.premium_ratio ?? Infinity);
-      if (sort === "expiry-asc") return String(a.option_expiration || "9999").localeCompare(String(b.option_expiration || "9999"));
-      return String(a.cb_code || "").localeCompare(String(b.cb_code || ""), "zh-TW", { numeric: true }) ||
-        a.broker.localeCompare(b.broker, "zh-TW");
+      if (sort === "parity-desc") return (b.parity_max ?? -Infinity) - (a.parity_max ?? -Infinity);
+      if (sort === "premium-asc") return (a.min_premium ?? Infinity) - (b.min_premium ?? Infinity);
+      if (sort === "ratio-asc") return (a.premium_ratio_min ?? Infinity) - (b.premium_ratio_min ?? Infinity);
+      if (sort === "expiry-asc") return String(a.nearest_expiry || "9999").localeCompare(String(b.nearest_expiry || "9999"));
+      return String(a.cb_code || "").localeCompare(String(b.cb_code || ""), "zh-TW", { numeric: true });
     });
     return result;
   }
 
+  function rangeText(minimum, maximum, formatter = formatNumber) {
+    if (!Number.isFinite(minimum)) return "—";
+    if (!Number.isFinite(maximum) || Math.abs(maximum - minimum) < 0.000001) return formatter(minimum);
+    return `${formatter(minimum)}–${formatter(maximum)}`;
+  }
+
+  function quoteComparison(row) {
+    return `<div class="quote-comparison">${row.quotes.map((quote) => `<div class="broker-quote">
+      <span class="broker-badge">${escapeHtml(quote.broker)}</span>
+      <strong>${Number.isFinite(quote.premium_per_100) ? `權利金 ${formatNumber(quote.premium_per_100)}` : "未報權利金"}</strong>
+      <small>CB ${formatNumber(quote.cb_price)} · 轉換 ${formatNumber(quote.parity)}</small>
+    </div>`).join("")}</div>`;
+  }
+
   function render() {
     const result = filtered();
-    const uniqueCbs = new Set(rows.map((row) => row.cb_code).filter(Boolean)).size;
-    const validQuotes = rows.filter((row) => Number.isFinite(row.premium_per_100)).length;
-    const strategic = rows.filter((row) => row.parity > 85 && (!balanceAvailable || row.balance_ratio > 0.3)).length;
+    const multiBroker = rows.filter((row) => row.broker_count > 1).length;
+    const strategic = rows.filter((row) => row.parity_max > 85 && (!balanceAvailable || row.balance_ratio > 0.3)).length;
     renderMetricCards([
-      { label: "券商報價筆數", value: rows.length, note: "不同券商逐筆呈現" },
-      { label: "CB 標的數", value: uniqueCbs, note: "依 CB 代碼去重" },
-      { label: "可拆解報價", value: validQuotes, note: "已有百元權利金" },
+      { label: "CB 標的數", value: rows.length, note: "同標的合併為一筆" },
+      { label: "原始報價筆數", value: rawRows.length, note: "保留三家券商明細" },
+      { label: "多家可比較", value: multiBroker, note: "至少兩家券商報價" },
       { label: balanceAvailable ? "符合策略條件" : "轉換價值 > 85", value: strategic, note: balanceAvailable ? "且餘額比例 > 30%" : "待補餘額資料", className: "accent" },
     ]);
-    $("rowCount").textContent = `${result.length} 筆`;
+    $("rowCount").textContent = `${result.length} 檔`;
     $("tableHead").innerHTML = `<tr>${columns.map(([, label]) => `<th>${label}</th>`).join("")}</tr>`;
     $("tableBody").innerHTML = result.length ? result.map((row) => `<tr>
-      <td class="align-left"><span class="broker-badge">${escapeHtml(row.broker)}</span></td>
-      <td class="code-cell"><strong>${escapeHtml(row.cb_code || "—")} ${escapeHtml(row.cb_name || "")}</strong><span>股票 ${escapeHtml(row.stock_code || "—")}</span></td>
-      <td>${formatNumber(row.premium_per_100)}</td>
-      <td>${formatNumber(row.premium_reference)}</td>
-      <td>${formatNumber(row.cb_price)}</td>
-      <td class="${row.parity > 85 ? "number-good" : ""}">${formatNumber(row.parity)}</td>
-      <td class="${Number.isFinite(row.premium_ratio) && row.premium_ratio < 0.2 ? "number-good" : ""}">${formatPercent(row.premium_ratio)}</td>
-      <td>${formatPercent(row.balance_ratio)}</td>
-      <td>${formatDate(row.option_expiration)}</td>
-      <td>${formatDate(row.put_date)}</td>
+      <td data-label="CB 標的" class="code-cell"><strong>${escapeHtml(row.cb_code || "—")} ${escapeHtml(row.cb_name || "")}</strong><span>股票 ${escapeHtml(row.stock_code || "—")} · ${row.broker_count} 家報價</span></td>
+      <td data-label="餘額比例" class="balance-cell">${formatPercent(row.balance_ratio)}</td>
+      <td data-label="券商報價比較" class="quote-cell">${quoteComparison(row)}</td>
+      <td data-label="最低權利金" class="number-good">${formatNumber(row.min_premium)}</td>
+      <td data-label="轉換價值" class="${row.parity_max > 85 ? "number-good" : ""}">${rangeText(row.parity_min, row.parity_max)}</td>
+      <td data-label="折溢價" class="${Number.isFinite(row.premium_ratio_min) && row.premium_ratio_min < 0.2 ? "number-good" : ""}">${rangeText(row.premium_ratio_min, row.premium_ratio_max, formatPercent)}</td>
+      <td data-label="最近到期">${formatDate(row.nearest_expiry)}</td>
     </tr>`).join("") : emptyRow(columns.length);
   }
 
@@ -215,15 +260,27 @@ function initQuotes() {
     render();
   });
   $("downloadCsv").addEventListener("click", () => {
-    const exportRows = filtered().map((row) => ({ ...row, cb: `${row.cb_code || ""} ${row.cb_name || ""}` }));
-    csvDownload(`cbas-quotes-${data.latest_source_date || "latest"}.csv`, columns, exportRows);
+    const exportRows = filtered().map((row) => {
+      const byBroker = Object.fromEntries(row.quotes.map((quote) => [quote.broker, quote]));
+      return {
+        ...row,
+        balance_ratio_text: formatPercent(row.balance_ratio),
+        premium_ratio_min_text: formatPercent(row.premium_ratio_min),
+        premium_ratio_max_text: formatPercent(row.premium_ratio_max),
+        yuanta_premium: byBroker["元大"]?.premium_per_100 ?? "",
+        fubon_premium: byBroker["富邦"]?.premium_per_100 ?? "",
+        capital_premium: byBroker["群益"]?.premium_per_100 ?? "",
+      };
+    });
+    csvDownload(`cbas-quotes-merged-${data.latest_source_date || "latest"}.csv`, exportColumns, exportRows);
   });
 
   function applyPayload(payload, uploaded) {
     data.latest_source_date = payload.latest_source_date;
     data.source_files = payload.source_files;
     data.quotes = payload.quotes;
-    rows = buildRows();
+    rawRows = buildRawRows();
+    rows = buildMergedRows(rawRows);
     usingUploadedData = uploaded;
     balanceAvailable = rows.some((row) => Number.isFinite(row.balance_ratio));
     $("minBalance").disabled = !balanceAvailable;

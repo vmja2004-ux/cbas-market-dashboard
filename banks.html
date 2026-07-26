@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <title>專戶與行庫公告｜CB Market Desk V2</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body data-page="banks">
+    <header class="site-header">
+      <a class="brand" href="./index.html">
+        <span class="brand-mark">CB</span>
+        <span><strong>Market Desk</strong><small>可轉債事件與交易工作台</small></span>
+      </a>
+      <nav aria-label="主要功能">
+        <a href="./index.html">報價</a>
+        <a href="./primary.html">初級市場</a>
+        <a class="active" href="./banks.html">專戶與行庫</a>
+        <a href="./redemption.html">到期贖回</a>
+      </nav>
+      <div id="freshness" class="freshness"></div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div>
+          <p class="eyebrow">COLLECTION & DEPOSIT BANKS</p>
+          <h1>專戶與行庫公告</h1>
+          <p>每日彙整可轉債代收價款與存儲專戶行庫，依公告日、公司代碼及發行次別去重。</p>
+        </div>
+        <button class="outline-button" id="downloadCsv" type="button">匯出目前結果</button>
+      </section>
+
+      <section id="metrics" class="metrics" aria-label="資料摘要"></section>
+
+      <section class="workspace">
+        <div class="workspace-head">
+          <div><p class="eyebrow">FILTERS</p><h2>公告篩選</h2></div>
+          <button id="resetFilters" class="text-button" type="button">清除條件</button>
+        </div>
+        <div class="filter-grid">
+          <label class="wide"><span>搜尋公告</span><input id="searchInput" type="search" placeholder="公司代碼、名稱、發行次別或行庫" /></label>
+          <label><span>擔保情形</span><select id="guaranteeSelect"><option value="">全部</option><option>有擔保</option><option>無擔保</option></select></label>
+          <label><span>顯示月份</span><select id="monthSelect"></select></label>
+        </div>
+      </section>
+
+      <section class="calendar-card">
+        <div class="calendar-head">
+          <button id="prevMonth" type="button" aria-label="上一個月">‹</button>
+          <div><p class="eyebrow">CALENDAR</p><h2 id="monthTitle"></h2></div>
+          <button id="nextMonth" type="button" aria-label="下一個月">›</button>
+        </div>
+        <div class="weekday-row"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
+        <div id="calendarGrid" class="calendar-grid"></div>
+      </section>
+
+      <section class="table-card">
+        <div class="section-head">
+          <div><p class="eyebrow">ANNOUNCEMENTS</p><h2>公告明細</h2></div>
+          <span id="rowCount" class="count-pill"></span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>公告日</th><th>公司</th><th>發行標的</th><th>擔保</th><th>代收價款行庫</th><th>存儲專戶行庫</th><th>原始公告</th></tr></thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <footer>CB Market Desk V2 · 最新資料請仍以公開資訊觀測站與發行公司正式公告為準。</footer>
+    <script src="./data/bank-announcements.js"></script>
+    <script src="./banks-app.js"></script>
+  </body>
+</html>

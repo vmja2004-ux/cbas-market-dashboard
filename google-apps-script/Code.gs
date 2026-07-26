@@ -2,6 +2,9 @@ const SPREADSHEET_ID = "1GNyCLNmqPBfrPAuS2HKxIAdORF3EUTLQZ7hYEXJ5oD4";
 const HISTORY_SHEET = "CBAS報價歷史";
 const LATEST_SHEET = "CBAS最新合併";
 const LOG_SHEET = "CBAS上傳紀錄";
+const ISSUED_MASTER_SHEET = "CB已發行主檔";
+const ISSUED_HISTORY_SHEET = "CB已發行版本歷史";
+const ISSUED_LOG_SHEET = "CB已發行匯入紀錄";
 const BROKERS = ["元大", "富邦", "群益"];
 
 function jsonResponse(value) {
@@ -9,8 +12,11 @@ function jsonResponse(value) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-function doGet() {
-  const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(LATEST_SHEET);
+function doGet(event) {
+  const dataset = event && event.parameter && event.parameter.dataset;
+  const sheetName = dataset === "issued" ? ISSUED_MASTER_SHEET : LATEST_SHEET;
+  const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(sheetName);
+  if (!sheet) return jsonResponse({ ok: true, rows: [] });
   const values = sheet.getDataRange().getValues();
   if (values.length < 2) return jsonResponse({ ok: true, rows: [] });
   const headers = values.shift();
@@ -31,6 +37,9 @@ function doPost(event) {
       return jsonResponse({ ok: false, error: "Sheet 同步密碼錯誤" });
     }
     const payload = request.payload || {};
+    if (payload.kind === "issued") {
+      return jsonResponse(syncIssued(payload));
+    }
     if (!Array.isArray(payload.quotes) || !Array.isArray(payload.source_files)) {
       return jsonResponse({ ok: false, error: "報價資料格式不正確" });
     }
@@ -90,6 +99,82 @@ function doPost(event) {
     return jsonResponse({ ok: false, error: error.message });
   } finally {
     lock.releaseLock();
+  }
+}
+
+function syncIssued(payload) {
+  if (!Array.isArray(payload.records)) {
+    return { ok: false, error: "已發行資料格式不正確" };
+  }
+  if (payload.records.length > 2000) {
+    return { ok: false, error: "單次已發行筆數超過上限" };
+  }
+  const spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const master = getOrCreateSheet(spreadsheet, ISSUED_MASTER_SHEET);
+  const history = getOrCreateSheet(spreadsheet, ISSUED_HISTORY_SHEET);
+  const log = getOrCreateSheet(spreadsheet, ISSUED_LOG_SHEET);
+  const now = new Date();
+  const fields = [
+    "record_key", "cb_code", "stock_code", "cb_name", "tcri_or_guarantor",
+    "issue_amount_100m", "lead_underwriter", "submitted_date", "effective_date",
+    "bookbuilding_period", "premium_rate", "conversion_price", "listing_date",
+    "option_available_date", "underwriting_price", "years", "put_terms",
+    "source_date", "source_file", "content_hash",
+  ];
+  const masterHeader = fields.concat(["first_imported_at", "last_updated_at"]);
+  const historyHeader = ["version_id", "version_at"].concat(fields);
+  ensureHeader(master, masterHeader);
+  ensureHeader(history, historyHeader);
+  ensureHeader(log, ["upload_id", "uploaded_at", "source_date", "source_file", "total_count", "added_count", "updated_count", "unchanged_count"]);
+
+  const currentValues = master.getDataRange().getValues();
+  const current = {};
+  currentValues.slice(1).forEach((row, index) => {
+    if (row[0]) current[String(row[0])] = { rowNumber: index + 2, row: row };
+  });
+
+  let added = 0;
+  let updated = 0;
+  let unchanged = 0;
+  const rowsToAdd = [];
+  const historyRows = [];
+  payload.records.forEach((record) => {
+    const key = String(record.record_key || record.cb_code || "");
+    if (!key) return;
+    const values = fields.map((field) => record[field] == null ? "" : record[field]);
+    const existing = current[key];
+    if (!existing) {
+      added += 1;
+      rowsToAdd.push(values.concat([now, now]));
+      historyRows.push([`${key}-${Utilities.getUuid()}`, now].concat(values));
+      return;
+    }
+    const previousHash = String(existing.row[fields.indexOf("content_hash")] || "");
+    if (previousHash === String(record.content_hash || "")) {
+      unchanged += 1;
+      return;
+    }
+    updated += 1;
+    const firstImportedAt = existing.row[fields.length] || now;
+    master.getRange(existing.rowNumber, 1, 1, masterHeader.length).setValues([values.concat([firstImportedAt, now])]);
+    historyRows.push([`${key}-${Utilities.getUuid()}`, now].concat(values));
+  });
+
+  if (rowsToAdd.length) master.getRange(master.getLastRow() + 1, 1, rowsToAdd.length, masterHeader.length).setValues(rowsToAdd);
+  if (historyRows.length) history.getRange(history.getLastRow() + 1, 1, historyRows.length, historyHeader.length).setValues(historyRows);
+  const uploadId = `${payload.source_date || "undated"}-${Utilities.formatDate(now, "Asia/Taipei", "HHmmss")}`;
+  log.appendRow([uploadId, now, payload.source_date || "", payload.source_file || "", payload.records.length, added, updated, unchanged]);
+  return { ok: true, upload_id: uploadId, total: payload.records.length, added: added, updated: updated, unchanged: unchanged };
+}
+
+function getOrCreateSheet(spreadsheet, name) {
+  return spreadsheet.getSheetByName(name) || spreadsheet.insertSheet(name);
+}
+
+function ensureHeader(sheet, header) {
+  if (sheet.getLastRow() === 0) {
+    sheet.getRange(1, 1, 1, header.length).setValues([header]);
+    sheet.setFrozenRows(1);
   }
 }
 

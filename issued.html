@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <title>發行與掛牌｜CB Market Desk V2</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body data-page="issued">
+    <header class="site-header">
+      <a class="brand" href="./index.html">
+        <span class="brand-mark">CB</span>
+        <span><strong>Market Desk</strong><small>可轉債事件與交易工作台</small></span>
+      </a>
+      <nav aria-label="主要功能">
+        <a href="./index.html">報價</a>
+        <a href="https://cbas-market-dashboard-o1dgkwfiw-vmja2004-6574s-projects.vercel.app/filing-calendar.html">申報與生效</a>
+        <a href="./primary.html">初級市場</a>
+        <a class="active" href="./issued.html">發行與掛牌</a>
+        <a href="./banks.html">專戶與行庫</a>
+        <a href="./redemption.html">到期贖回</a>
+      </nav>
+      <div id="issuedFreshness" class="freshness"></div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div>
+          <p class="eyebrow">ISSUED &amp; LISTING</p>
+          <h1>發行與掛牌</h1>
+          <p>CB 已發行資訊入口，追蹤掛牌、可拆解日期、承銷條件與單檔生命週期。</p>
+        </div>
+        <button class="outline-button" id="issuedDownloadCsv" type="button">匯出目前結果</button>
+      </section>
+
+      <section class="workspace upload-workspace" aria-labelledby="issuedUploadHeading">
+        <div class="workspace-head">
+          <div><p class="eyebrow">HISTORICAL IMPORT</p><h2 id="issuedUploadHeading">匯入已發行資料</h2></div>
+          <a id="issuedSheetLink" class="text-button" href="https://docs.google.com/spreadsheets/d/1GNyCLNmqPBfrPAuS2HKxIAdORF3EUTLQZ7hYEXJ5oD4/edit" target="_blank" rel="noopener">開啟歷史 Sheet</a>
+        </div>
+        <div class="upload-layout">
+          <label id="issuedDrop" class="upload-drop">
+            <input id="issuedFile" type="file" accept=".xlsx" />
+            <span class="upload-icon" aria-hidden="true">↑</span>
+            <strong>選擇或拖入 CB 發行案件彙整檔</strong>
+            <small>自動抓取「已發行」工作表，依主鍵與內容雜湊去重</small>
+          </label>
+          <div class="upload-guide">
+            <strong>同步規則</strong>
+            <p>新代碼新增；相同內容略過；欄位變更更新主檔並新增版本歷史。</p>
+            <p>ECB 以股票代碼、掛牌日組成替代主鍵，避免同公司多次發行互相覆蓋。</p>
+          </div>
+        </div>
+        <p id="issuedUploadStatus" class="upload-status" role="status" aria-live="polite">目前顯示 2026/07/24 快照，共 916 筆。</p>
+      </section>
+
+      <div class="data-tabs" role="tablist" aria-label="發行與掛牌資料切換">
+        <button class="active" type="button" role="tab" data-issued-tab="recent">近期掛牌</button>
+        <button type="button" role="tab" data-issued-tab="history">已發行資料庫</button>
+        <button type="button" role="tab" data-issued-tab="detail">單檔履歷</button>
+        <button type="button" role="tab" data-issued-tab="imports">匯入紀錄</button>
+      </div>
+
+      <section id="issuedMetrics" class="metrics" aria-label="發行與掛牌摘要"></section>
+
+      <section class="workspace">
+        <div class="workspace-head">
+          <div><p class="eyebrow">FILTERS</p><h2>已發行資料篩選</h2></div>
+          <button id="issuedResetFilters" class="text-button" type="button">清除條件</button>
+        </div>
+        <div class="filter-grid">
+          <label class="wide"><span>搜尋 CB</span><input id="issuedSearch" type="search" placeholder="代碼、名稱、主辦券商或 TCRI／擔保" /></label>
+          <label><span>掛牌年度</span><select id="issuedYear"></select></label>
+          <label><span>TCRI／擔保</span><select id="issuedGuarantee"></select></label>
+          <label><span>主辦券商</span><select id="issuedBroker"></select></label>
+        </div>
+      </section>
+
+      <div id="issuedRecentView" class="issued-view">
+        <section class="calendar-card">
+          <div class="calendar-head">
+            <button id="issuedPrevMonth" type="button" aria-label="上一個月">‹</button>
+            <div><p class="eyebrow">LISTING CALENDAR</p><h2 id="issuedMonthTitle"></h2></div>
+            <button id="issuedNextMonth" type="button" aria-label="下一個月">›</button>
+          </div>
+          <div class="weekday-row"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
+          <div id="issuedCalendar" class="calendar-grid"></div>
+        </section>
+      </div>
+
+      <div id="issuedDetailView" class="issued-view" hidden>
+        <section class="workspace">
+          <div class="workspace-head"><div><p class="eyebrow">CB LIFECYCLE</p><h2 id="issuedDetailTitle">請從表格選擇一檔 CB</h2></div></div>
+          <div id="issuedTimeline" class="issued-timeline"></div>
+        </section>
+      </div>
+
+      <div id="issuedImportsView" class="issued-view" hidden>
+        <section class="table-card">
+          <div class="section-head"><div><p class="eyebrow">IMPORT HISTORY</p><h2>匯入紀錄</h2></div></div>
+          <div class="table-wrap"><table><thead><tr><th>匯入時間</th><th>資料日</th><th>來源檔案</th><th>總筆數</th><th>新增</th><th>更新</th><th>未變更</th></tr></thead><tbody id="issuedImportsBody"></tbody></table></div>
+        </section>
+      </div>
+
+      <section id="issuedTableCard" class="table-card">
+        <div class="section-head">
+          <div><p class="eyebrow">ISSUED DATABASE</p><h2 id="issuedTableTitle">近期掛牌</h2></div>
+          <span id="issuedRowCount" class="count-pill"></span>
+        </div>
+        <div class="table-wrap"><table><thead id="issuedTableHead"></thead><tbody id="issuedTableBody"></tbody></table></div>
+      </section>
+    </main>
+
+    <footer>CB Market Desk V2 · 同一主鍵內容未變更時不重複寫入 Sheet。</footer>
+    <script src="./data/issued-latest.js"></script>
+    <script src="./data/sheet-backend-config.js"></script>
+    <script src="./sheet-backend.js"></script>
+    <script src="./vendor/cpexcel.js"></script>
+    <script src="./vendor/xlsx.core.min.js"></script>
+    <script src="./issued-upload.js"></script>
+  </body>
+</html>

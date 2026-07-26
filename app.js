@@ -345,14 +345,17 @@ function initSchedule() {
   const isPrimary = page === "primary";
   const rows = isPrimary ? unpack(data.primary_market) : dedupeEvents(unpack(data.events));
   const config = isPrimary ? {
-    dateFields: [["listing_date", "掛牌日"], ["op_effective_date", "OP 生效日"]],
+    dateFields: [
+      ["listing_date", "掛牌日"], ["option_available_date", "可拆解選擇權日"],
+      ["op_effective_date", "生效日"], ["submitted_date", "送件日"],
+    ],
     typeKey: "issue_type",
     searchKeys: ["cb_code", "stock_code", "cb_name", "lead_underwriter", "tcri_or_guarantor"],
     columns: [
       ["cb", "CB 案件"], ["issue_type", "方式"], ["issue_amount_100m", "發行量（億）"],
       ["tcri_or_guarantor", "TCRI／擔保"], ["lead_underwriter", "主辦券商"],
       ["bookbuilding_period", "詢圈／投標"], ["listing_date", "掛牌日"],
-      ["op_effective_date", "OP 生效日"], ["conversion_price", "轉換價"],
+      ["option_available_date", "可拆解日"], ["op_effective_date", "生效日"], ["conversion_price", "轉換價"],
     ],
   } : {
     dateFields: [["redeem_date", "贖回／終止日"], ["next_put_date", "賣回日"], ["maturity_date", "到期日"]],
@@ -463,7 +466,7 @@ function initSchedule() {
       const days = daysFromToday(row[dateField()]);
       return `<span class="${days !== null && days >= 0 && days <= 30 ? "number-risk" : ""}">${escapeHtml(countdownText(row))}</span>`;
     }
-    if (["listing_date", "op_effective_date", "redeem_date", "next_put_date", "maturity_date"].includes(key)) return formatDate(row[key]);
+    if (["listing_date", "option_available_date", "submitted_date", "op_effective_date", "redeem_date", "next_put_date", "maturity_date"].includes(key)) return formatDate(row[key]);
     return escapeHtml(formatNumber(row[key], row[key] || "—"));
   }
 

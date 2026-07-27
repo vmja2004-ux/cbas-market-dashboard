@@ -1,5 +1,5 @@
 window.CB_BANK_ANNOUNCEMENTS = {
-  generated_at: "2026-07-26T07:57:53+08:00",
+  generated_at: "2026-07-27T08:10:43+08:00",
   source_note: "公開資訊觀測站重大訊息公告；原文連結採可直接開啟之公告轉載頁。",
   rows: [
     {
@@ -111,6 +111,17 @@ window.CB_BANK_ANNOUNCEMENTS = {
       collection_bank: "國泰世華商業銀行建成分行",
       deposit_bank: "凱基商業銀行市政分公司",
       source_url: "https://www.moneydj.com/KMDJ/news/newsviewer.aspx?a=0daaf10d-1be1-4a24-ac85-7aaac480830a"
+    },
+    {
+      announcement_date: "2026-07-16",
+      company_code: "4764",
+      company_name: "雙鍵",
+      issue_no: "第二次",
+      issue_name: "國內第二次有擔保轉換公司債",
+      guarantee: "有擔保",
+      collection_bank: "凱基商業銀行敦北分行",
+      deposit_bank: "臺灣土地銀行古亭分行",
+      source_url: "https://www.moneydj.com/kmdj/news/newsviewer.aspx?a=405d35f0-a406-4525-932f-b8e58bcdc7c5"
     },
     {
       announcement_date: "2026-07-08",

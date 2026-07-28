@@ -1,5 +1,5 @@
 window.CB_BANK_ANNOUNCEMENTS = {
-  generated_at: "2026-07-27T08:10:43+08:00",
+  generated_at: "2026-07-28T08:01:46+08:00",
   source_note: "公開資訊觀測站重大訊息公告；原文連結採可直接開啟之公告轉載頁。",
   rows: [
     {

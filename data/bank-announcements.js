@@ -1,7 +1,18 @@
 window.CB_BANK_ANNOUNCEMENTS = {
-  generated_at: "2026-07-28T08:01:46+08:00",
+  generated_at: "2026-07-30T08:05:16+08:00",
   source_note: "公開資訊觀測站重大訊息公告；原文連結採可直接開啟之公告轉載頁。",
   rows: [
+    {
+      announcement_date: "2026-07-29",
+      company_code: "4967",
+      company_name: "十銓",
+      issue_no: "第五次",
+      issue_name: "國內第五次無擔保轉換公司債",
+      guarantee: "無擔保",
+      collection_bank: "永豐商業銀行城中分行",
+      deposit_bank: "元大商業銀行營業部",
+      source_url: "https://www.moneydj.com/KMDJ/news/newsviewer.aspx?a=f6e56b5e-48e0-4495-b6e1-0be5bedb270f"
+    },
     {
       announcement_date: "2026-07-24",
       company_code: "8936",

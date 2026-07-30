@@ -1,7 +1,29 @@
 window.CB_BANK_ANNOUNCEMENTS = {
-  generated_at: "2026-07-30T08:05:16+08:00",
+  generated_at: "2026-07-31T07:57:50+08:00",
   source_note: "公開資訊觀測站重大訊息公告；原文連結採可直接開啟之公告轉載頁。",
   rows: [
+    {
+      announcement_date: "2026-07-30",
+      company_code: "3081",
+      company_name: "聯亞",
+      issue_no: "第二次",
+      issue_name: "國內第二次無擔保轉換公司債",
+      guarantee: "無擔保",
+      collection_bank: "元大商業銀行南京東路分行",
+      deposit_bank: "元大商業銀行高雄分行",
+      source_url: "https://www.moneydj.com/kmdj/news/newsviewer.aspx?a=0af3a7b8-3b75-4f1a-9426-bc3436d70d59"
+    },
+    {
+      announcement_date: "2026-07-30",
+      company_code: "6570",
+      company_name: "維田",
+      issue_no: "第二次",
+      issue_name: "國內第二次無擔保轉換公司債",
+      guarantee: "無擔保",
+      collection_bank: "台灣銀行中崙分行",
+      deposit_bank: "中國信託商業銀行敦北分行",
+      source_url: "https://www.moneydj.com/KMDJ/news/newsviewer.aspx?a=dddfa063-73fb-49c6-af89-acc82ec2eddc"
+    },
     {
       announcement_date: "2026-07-29",
       company_code: "4967",
